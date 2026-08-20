@@ -1,0 +1,34 @@
+# Virtual environments
+shopify/
+venv/
+env/
+.venv/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large datasets and cloned repositories
+data/shopify_taxonomy/
+data/*.xlsx
+data/*.csv
+
+# Generated files
+media/
+staticfiles/
