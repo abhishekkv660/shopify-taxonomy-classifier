@@ -1,44 +1,60 @@
 from taxonomy.models import TaxonomyCategory
 
-from classification.services.product_text import normalize_text
 
-
-def build_category_document(category: TaxonomyCategory) -> str:
+def build_category_document(category):
     """
-    Build a searchable text representation of a Shopify taxonomy category.
-
-    The leaf category name is repeated because it is the most specific
-    classification signal, while the full path provides hierarchical context.
+    Build a searchable document representing a Shopify taxonomy category.
     """
-
-    leaf_name = category.name or ""
-    full_path = category.full_path or ""
 
     parts = [
-        leaf_name,
-        leaf_name,
-        full_path,
+        category.name,
+        category.full_path,
     ]
 
-    return normalize_text(" ".join(parts))
+    return " ".join(
+        part
+        for part in parts
+        if part
+    )
+
+
+def get_category_corpus():
+    """
+    Build a searchable corpus from Shopify taxonomy categories.
+
+    Includes both parent and leaf categories so that products are not
+    forced into an overly specific leaf category when the available
+    product information does not support that specificity.
+    """
+
+    categories = (
+        TaxonomyCategory.objects
+        .all()
+        .order_by("full_path")
+    )
+
+    corpus = []
+
+    for category in categories:
+        corpus.append(
+            {
+                "category": category,
+                "text": build_category_document(category),
+            }
+        )
+
+    return corpus
 
 
 def get_leaf_category_corpus():
     """
-    Return all Shopify leaf categories and their searchable documents.
-
-    Each item contains:
-        - category: TaxonomyCategory instance
-        - text: normalized searchable document
+    Backward-compatible helper for leaf-only category retrieval.
     """
 
-    categories = TaxonomyCategory.objects.filter(
-        is_leaf=True
-    ).only(
-        "id",
-        "name",
-        "full_path",
-        "shopify_id",
+    categories = (
+        TaxonomyCategory.objects
+        .filter(is_leaf=True)
+        .order_by("full_path")
     )
 
     corpus = []
