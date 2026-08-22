@@ -43,7 +43,8 @@ pip install -r requirements.txt
 ```bash
 python manage.py makemigrations
 python manage.py migrate
-python manage.py import_taxonomy taxonomy.txt
+git clone https://github.com/Shopify/product-taxonomy.git data/shopify_taxonomy
+python manage.py import_shopify_taxonomy data/shopify_taxonomy/dist/en
 ```
 
 ### 5. Running the Application
