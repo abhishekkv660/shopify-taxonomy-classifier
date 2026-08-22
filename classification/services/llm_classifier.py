@@ -60,6 +60,7 @@ Respond ONLY with valid JSON matching this schema:
                 model=self.MODEL,
                 messages=[
                     {
+                        "role": "system",
                         "content": "You are a Shopify classification system. Output valid JSON matching the schema strictly.",
                     },
                     {
