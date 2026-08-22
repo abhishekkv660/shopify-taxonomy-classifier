@@ -12,9 +12,9 @@ class ProductClassifier:
     Main orchestration service for product classification.
     Bridges candidate retrieval and structured classification models.
     """
-    def __init__(self):
-        self.retriever = CategoryCandidateRetriever()
-        self.llm_classifier = LLMTaxonomyClassifier()
+    def __init__(self, retriever=None, llm_classifier=None):
+        self.retriever = retriever or CategoryCandidateRetriever()
+        self.llm_classifier = llm_classifier or LLMTaxonomyClassifier()
 
     def classify(self, product):
         """

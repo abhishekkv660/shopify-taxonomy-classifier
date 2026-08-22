@@ -45,6 +45,7 @@ INSTRUCTIONS:
 2. Provide a confidence_score between 1 and 100.
 3. If confidence_score < 80, provide 1 to 3 alternative_categories from the candidates.
 4. Extract key product attributes that fit the selected category (e.g., Color, Material) as key-value pairs in extracted_attributes.
+5. EXPLICITLY extract the Brand from the product name (e.g. if the name says "by Modway", add "Brand": "Modway" to the extracted_attributes).
 
 Respond ONLY with valid JSON matching this schema:
 {{

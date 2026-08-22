@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Taxonomy Dashboard</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Taxonomy Classifier</h1>
+        <div class="header-actions">
+            <input type="file" id="fileUpload" style="display:none;" accept=".xlsx" onchange="uploadProducts(this)">
+            <button class="btn btn-success-soft" id="btnUpload" onclick="document.getElementById('fileUpload').click()">Upload Excel</button>
+            
+            {% if pending_products > 0 %}
+                <select id="batchSizeSelect" class="btn" style="width: auto; margin-bottom: 0; padding-right: 2.5rem; background-color: var(--card-bg); color: var(--text-main); border: 1px solid rgba(0,0,0,0.1);">
+                    <option value="10">Process 10 (Demo)</option>
+                    <option value="50">Process 50</option>
+                    <option value="100">Process 100</option>
+                    <option value="all">Process All ({{ pending_products }})</option>
+                </select>
+                <button class="btn btn-primary" id="btnStartJob" onclick="startBatchJob()">Start Batch Processor</button>
+            {% else %}
+                <button class="btn" disabled>All Products Classified</button>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="btn btn-danger-soft">Logout</a>
+        </div>
+    </header>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Total Catalog</h3>
+            <div class="value">{{ total_products }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>AI Classified</h3>
+            <div class="value">{{ classified_products }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Pending</h3>
+            <div class="value">{{ pending_products }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Needs Review</h3>
+            <div class="value">{{ needs_review }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Avg Confidence</h3>
+            <div class="value">{{ avg_confidence }}</div>
+        </div>
+    </div>
+
+    <div id="jobBanner" class="job-banner" style="display: {% if latest_job %}block{% else %}none{% endif %};">
+        <div style="width: 100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="jobTitle" style="margin:0; font-size:1.1rem; color:var(--text-main);">
+                    Active Batch Job {% if latest_job %}#{{ latest_job.id }}{% endif %}
+                </h4>
+                <div id="jobStatusBadge" class="badge {% if latest_job %}{% if latest_job.status == 'COMPLETED' %}success{% elif latest_job.status == 'FAILED' %}danger{% else %}warning{% endif %}{% endif %}">
+                    {% if latest_job %}{{ latest_job.status }}{% endif %}
+                </div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div id="jobProgressBar" class="progress-bar-fill" style="width: {% if latest_job %}{% widthratio latest_job.completed latest_job.total_products 100 %}{% else %}0{% endif %}%;"></div>
+            </div>
+            
+            <div style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span id="jobProgressText">
+                    {% if latest_job %}Completed: {{ latest_job.completed }} / {{ latest_job.total_products }} (Failed: {{ latest_job.failed }}){% endif %}
+                </span>
+                <span id="jobProgressPercent">
+                    {% if latest_job %}{% widthratio latest_job.completed latest_job.total_products 100 %}%{% else %}0%{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="tabs">
+            <div class="tab active" onclick="loadTab('ALL')">All</div>
+            <div class="tab" onclick="loadTab('REVIEW')">Needs Review</div>
+            <div class="tab" onclick="loadTab('FAILED')">Failed</div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>AI Category</th>
+                    <th>Confidence</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+            </tbody>
+        </table>
+        
+        <div class="pagination" id="paginationControls" style="display:flex; justify-content:center; gap: 10px; margin-top: 20px; padding-bottom: 20px;">
+            <button class="btn" id="btnPrevPage" onclick="changePage(-1)">Previous</button>
+            <span id="pageIndicator" style="align-self:center;">Page 1</span>
+            <button class="btn" id="btnNextPage" onclick="changePage(1)">Next</button>
+        </div>
+    </div>
+
+    <!-- Inspection Modal -->
+    <div class="modal-overlay" id="inspectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Product Inspection</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Left: Product Context -->
+                <div class="modal-left">
+                    <img id="modalImg" class="modal-img" src="" alt="Product Image">
+                    <h3 id="modalTitle" style="font-size:16px; margin-bottom:4px;"></h3>
+                    <div id="modalBrand" style="font-size:12px; color:var(--p-text-subdued); margin-bottom:12px;"></div>
+                    <p id="modalDesc" style="font-size:14px; color:var(--p-text-subdued); line-height:1.5;"></p>
+                </div>
+                
+                <!-- Right: Form -->
+                <div class="modal-right">
+                    <input type="hidden" id="modalClassId">
+                    
+                    <h4>Classification Status</h4>
+                    <div id="modalStatusBadge" style="margin-bottom:20px;"></div>
+                    
+                    <div class="meta-label">Predicted Category</div>
+                    <input list="categoryList" id="modalCategory" style="width: 100%; padding: 1rem 1.25rem; border: 2px solid transparent; border-radius: 12px; background: rgba(0,0,0,0.03); color: var(--primary-color); font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem;" placeholder="Search categories...">
+                    <datalist id="categoryList"></datalist>
+                    <div id="modalAlternatives" style="margin-top:10px;"></div>
+
+                    <h4>Extracted Attributes</h4>
+                    <div id="modalAttributes"></div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveClassification()">Approve & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'dashboard/js/app.js' %}?v=2"></script>
+    <script>
+        initDashboardData({{ all_categories|safe }});
+    </script>
+</body>
+</html>

@@ -97,39 +97,23 @@ class Command(BaseCommand):
 
     def normalize_row(self, row):
         raw_data = {
-            str(column): self.clean_value(value)
+            str(column).strip(): self.clean_value(value)
             for column, value in row.items()
         }
 
-        image_urls = self.extract_image_urls(row)
+        image_urls = self.extract_image_urls(raw_data)
 
         return {
-            "product_number": self.clean_value(
-                row.get("Product Number")
-            ),
-            "model_number": self.clean_value(
-                row.get("Model Number")
-            ),
-            "name": self.clean_value(
-                row.get("Product Name")
-            ),
-            "description": self.clean_value(
-                row.get("Product Description")
-            ),
-            "product_category": self.clean_value(
-                row.get("Product Category")
-            ),
-            "product_sub_category": self.clean_value(
-                row.get("Product Sub Category")
-            ),
+            "product_number": self.clean_value(raw_data.get("Product Number")),
+            "model_number": self.clean_value(raw_data.get("Model Number")),
+            "name": self.clean_value(raw_data.get("Product Name")),
+            "description": self.clean_value(raw_data.get("Product Description")),
+            "product_category": self.clean_value(raw_data.get("Product Category")),
+            "product_sub_category": self.clean_value(raw_data.get("Product Sub Category")),
             "product_type": None,
             "brand": None,
-            "product_color": self.clean_value(
-                row.get("Product Color")
-            ),
-            "materials": self.clean_value(
-                row.get("Materials")
-            ),
+            "product_color": self.clean_value(raw_data.get("Product Color")),
+            "materials": self.clean_value(raw_data.get("Materials")),
             "image_urls": image_urls,
             "raw_data": raw_data,
         }

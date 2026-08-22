@@ -26,6 +26,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
@@ -42,10 +43,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    "products",
-    "taxonomy",
-    "classification",
-    "processing",
+    # Local apps
+    'products',
+    'taxonomy',
+    'classification',
+    'dashboard',
+    
+    # Third party
+    'rest_framework',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

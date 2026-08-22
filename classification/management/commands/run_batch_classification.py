@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from products.models import Product
 from classification.tasks import process_unclassified_products_batch
+from dashboard.models import ProcessingJob
 
 class Command(BaseCommand):
     help = 'Triggers Celery batch tasks to process unclassified products'
@@ -33,11 +34,22 @@ class Command(BaseCommand):
 
         products_to_process = list(Product.objects.filter(classification__isnull=True).values_list('id', flat=True)[:batch_size * num_batches])
         
+        if not products_to_process:
+            self.stdout.write(self.style.SUCCESS("All products have been classified!"))
+            return
+
+        # Create the Job Tracker
+        job = ProcessingJob.objects.create(
+            total_products=len(products_to_process),
+            status='IN_PROGRESS'
+        )
+        self.stdout.write(f"Created ProcessingJob #{job.id} for {job.total_products} products.")
+
         # Split into chunks of `batch_size`
         chunks = [products_to_process[i:i + batch_size] for i in range(0, len(products_to_process), batch_size)]
         
         for i, chunk in enumerate(chunks):
             self.stdout.write(f"Dispatching batch {i+1}/{len(chunks)} ({len(chunk)} products)...")
-            process_unclassified_products_batch.delay(product_ids=chunk)
+            process_unclassified_products_batch.delay(product_ids=chunk, job_id=job.id)
         
         self.stdout.write(self.style.SUCCESS(f"Successfully dispatched {len(chunks)} Celery task(s)! Monitor with 'celery -A config worker -l info --pool=solo'"))

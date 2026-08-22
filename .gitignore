@@ -59,6 +59,3 @@ data/*.csv
 # Generated files
 media/
 staticfiles/
-
-# Embeddings cache
-data/*.pkl
