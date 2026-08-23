@@ -90,9 +90,11 @@ Each product is wrapped in a `try-except` block. If an image is broken (404) or 
 ## 18. Manual Review
 Products are flagged (`requires_manual_review = True`) if the confidence score is < 70%, if the candidate path is invalid, or if processing fails. Reviewers can easily select from alternative categories in the UI.
 
-## 19. Demo Video & Screenshots
+## 19. Demo Video
 
 [![Watch the Demo Video](https://img.youtube.com/vi/KtGn0PX8GsU/maxresdefault.jpg)](https://youtu.be/KtGn0PX8GsU)
+
+## 20. Screenshots
 
 - **Login Page**  
   ![Login Page](screenshots/login%20page.png)
@@ -105,7 +107,7 @@ Products are flagged (`requires_manual_review = True`) if the confidence score i
 - **Product Inspection & Manual Review**  
   ![Inspect Modal](screenshots/inspect.png)
 
-## 20. Sample Results
+## 21. Sample Results
 An example of the extracted classification payload:
 ```json
 {
@@ -121,20 +123,20 @@ An example of the extracted classification payload:
 }
 ```
 
-## 21. Limitations
+## 22. Limitations
 - External LLM API rate limits (mitigated by text-only fallbacks).
 - Initial local embeddings load time on worker startup (handled by lazy loading).
 
-## 22. Production Improvements
+## 23. Production Improvements
 - Migrate local `SentenceTransformers` to a dedicated Vector DB (Pinecone/Milvus).
 - Implement WebSockets for real-time progress bars instead of AJAX polling.
 - Deploy across AWS ECS (Fargate).
 
-## 23. Testing
+## 24. Testing
 Run the test suite inside the docker container:
 ```bash
 docker-compose exec web python manage.py test
 ```
 
-## 24. Assignment Question Answers
+## 25. Assignment Question Answers
 Detailed answers to the 14 theoretical questions requested in the assignment can be found in [`CANDIDATE_ANSWERS.md`](./CANDIDATE_ANSWERS.md).
