@@ -7,10 +7,10 @@ echo 1. Starting Redis Server...
 start "Redis Server" cmd /k "redis-server"
 
 echo 2. Starting Celery Worker...
-start "Celery Worker" cmd /k "celery -A config worker -l info --pool=threads"
+start "Celery Worker" cmd /k "if exist venv\Scripts\activate (call venv\Scripts\activate) & celery -A config worker -l info --pool=threads"
 
 echo 3. Starting Django Server...
-start "Django Server" cmd /k "python manage.py runserver"
+start "Django Server" cmd /k "if exist venv\Scripts\activate (call venv\Scripts\activate) & python manage.py runserver"
 
 echo.
 echo Setup Complete! 
