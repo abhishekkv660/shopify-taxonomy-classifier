@@ -1,56 +1,158 @@
 # AI Taxonomy Classifier
 
+## 1. Project Overview
 An intelligent, massively scalable background processor that ingests raw product data and categorizes it using the official Shopify Taxonomy. Built with Django, Celery, and Groq (LLaMA3).
 
-## Features
-- **Semantic Candidate Retrieval:** Uses `SentenceTransformers` (`all-MiniLM-L6-v2`) to instantly find the top 10 closest Shopify categories for a product.
-- **LLM Classification:** Uses the Groq API (LLaMA3) to evaluate candidates, select the exact primary path, assign a confidence score (1-100), extract relevant attributes, and provide alternatives.
-- **Multimodal Support:** Integrates Google Gemini API to dynamically analyze product images and extract visual context if text metadata is insufficient.
-- **Resumable Batch Processing:** Uses a persistent `ProcessingJob` database model and Celery background workers to process up to 10,000+ products continuously without timeout or memory limits. 
-- **Graceful Fallbacks:** Automatically falls back to text-only classification if the Image Vision API hits a rate limit (HTTP 429). Flags low-confidence results for manual review.
-- **Modern Dashboard UI:** A beautiful, responsive frontend built with Vanilla JS and CSS for reviewing, editing, and approving AI classifications.
+## 2. Problem Statement
+The goal is to automatically detect the Shopify Product Taxonomy category, category attributes, and attribute values for a catalogue containing 10,000+ products, handling missing descriptions, missing images, and failures gracefully without stopping batch processing.
 
-## Architecture
+## 3. Architecture
+The application follows a decoupled 3-tier architecture:
+1. **Frontend:** Vanilla JS / CSS dashboard.
+2. **Web Tier:** Django WSGI server handling HTTP/API requests and MariaDB interactions.
+3. **Worker Tier:** Asynchronous Celery workers pulling tasks from Redis, querying a local `SentenceTransformer` vector space, and inferring via Groq/Gemini APIs.
 
-1. **Ingestion Layer:** `/api/upload/` accepts `.xlsx` files and asynchronously parses them into the Django database using Pandas, handling missing data gracefully.
-2. **Orchestration Layer:** Celery worker processes products asynchronously in batches.
-3. **Retrieval Layer:** The product title and description are vectorized locally and compared against the 5,000+ Shopify categories to find candidates.
-4. **Classification Layer:** Groq processes the final prompt.
-5. **Presentation Layer:** The REST API serves paginated results to the Vanilla JS dashboard.
+## 4. Technology Stack
+- **Backend:** Python, Django, Django REST Framework
+- **Database:** MariaDB
+- **Background Processing:** Celery, Redis
+- **AI/ML:** `sentence-transformers` (Local), Groq (LLaMA3), Google Gemini Pro Vision
+- **Deployment:** Docker, Docker Compose
 
-## Screenshots & Demo Video
+## 5. Features
+- **Semantic Candidate Retrieval:** Uses `SentenceTransformers` to instantly find the top 10 closest Shopify categories.
+- **LLM Classification & Multimodal Support:** Uses Groq (LLaMA3) for text analysis and Gemini for image analysis.
+- **Resumable Batch Processing:** Processes 10,000+ products continuously without timeouts.
+- **Graceful Fallbacks:** Falls back to text-only classification on image API rate limits (HTTP 429).
+- **Modern Dashboard UI:** For reviewing, editing, and approving AI classifications.
 
-*(Add your screenshots here)*
-- **Dashboard View:** `![Dashboard](link_to_image)`
-- **Manual Review Modal:** `![Review Modal](link_to_image)`
+## 6. Project Structure
+- `classification/`: Core ML, NLP logic, Celery tasks, and API views.
+- `dashboard/`: Vanilla JS and HTML templates for the UI.
+- `products/`: Product ingestion and storage logic.
+- `taxonomy/`: Shopify taxonomy models and parsing commands.
+- `config/`: Django routing and settings.
 
-*(Add a link to a short 2-minute Loom or YouTube video demonstrating the application running here)*
+## 7. Prerequisites
+- Docker & Docker Compose (Recommended)
+- **OR** Python 3.10+, Redis server, and MariaDB (for bare-metal).
 
-## Setup Instructions
+## 8. MariaDB Setup
+If not using Docker, ensure MariaDB is running locally. Create a database `taxonomy_db` and user `taxonomy_user` (or update `.env` to match your local credentials).
 
-### Option A: Docker (Recommended)
-You can spin up the entire architecture (Django, Celery, Redis, MariaDB) with a single command. The database will automatically migrate and seed the taxonomy data.
-
-1. Create a `.env` file in the root directory:
+## 9. Environment Variables
+Create a `.env` file in the root directory:
 ```env
 GROQ_API_KEY=your_groq_key
 GEMINI_API_KEY=your_gemini_key
+DB_NAME=taxonomy_db
+DB_USER=taxonomy_user
+DB_PASSWORD=your_password
 ```
 
-2. Run Docker Compose:
+## 10. Installation
+**Option A: Docker (Recommended)**
 ```bash
 docker-compose up --build
 ```
-Navigate to `http://localhost:8000/dashboard/` to view the UI.
+*(This automatically runs migrations and seeds the taxonomy. Skip to step 13).*
 
-### Option B: Local Bare-Metal Setup
-1. Create your `.env` (make sure to include local DB credentials).
-2. Install dependencies: `pip install -r requirements.txt`
-3. Migrate and seed data:
+**Option B: Bare-Metal**
+```bash
+conda create -n shopify python=3.10
+conda activate shopify
+pip install -r requirements.txt
+```
+
+## 11. Database Migration (Bare-Metal)
 ```bash
 python manage.py migrate
+```
+
+## 12. Shopify Taxonomy Setup (Bare-Metal)
+```bash
 python manage.py import_shopify_taxonomy data/taxonomy_data
 ```
-4. Run Redis on port 6379.
-5. Run the Celery Worker: `celery -A core worker -l info --pool=threads`
-6. Run the Django Server: `python manage.py runserver`
+
+## 13. Product Import
+Upload the provided `.xlsx` product catalogue directly via the Dashboard UI ("Upload Excel" button) or via the API.
+
+## 14. Running the Application (Bare-Metal)
+```bash
+python manage.py runserver
+```
+Navigate to `http://localhost:8000/dashboard/`
+
+## 15. Running Background Workers (Bare-Metal)
+Ensure Redis is running (port 6379), then start Celery:
+```bash
+celery -A core worker -l info --pool=threads
+```
+
+## 16. Classification Flow
+1. Text metadata is embedded locally and compared against 5,000+ taxonomy categories.
+2. Top 10 candidate paths + Image (if available) are sent to the LLM.
+3. LLM returns JSON containing the exact primary path, confidence, attributes, and alternatives.
+
+## 17. Dashboard Usage
+- View overall statistics (Total, Pending, Success, Failed, Manual Review).
+- Click "Upload Excel" to ingest new products.
+- Click "Process Pending" to trigger the Celery batch worker.
+- Click any row to inspect, edit, or approve the classification.
+
+## 18. API Endpoints
+- `POST /api/upload/`: Ingest product Excel file.
+- `POST /api/process-batch/`: Trigger background processing.
+- `GET /api/classifications/`: Paginated results.
+- `PATCH /api/classifications/<id>/`: Update/approve classification.
+
+## 19. Batch Processing
+Handled via a Celery queue. A `ProcessingJob` tracks progress. The worker pulls products individually, completely decoupled from the web UI.
+
+## 20. Resume Behavior
+The worker only queries products where `status='PENDING'`. If the server crashes, restarting the worker automatically resumes exactly where it left off, skipping completed products.
+
+## 21. Error Handling
+Each product is wrapped in a `try-except` block. If an image is broken (404) or an API times out, the failure is caught, the product is marked as `FAILED`, and the batch continues without stopping.
+
+## 22. Manual Review
+Products are flagged (`requires_manual_review = True`) if the confidence score is < 70%, if the candidate path is invalid, or if processing fails. Reviewers can easily select from alternative categories in the UI.
+
+## 23. Screenshots
+- **Dashboard View:** *(Add screenshot here)*
+- **Manual Review Modal:** *(Add screenshot here)*
+- **Demo Video:** *(Add link to Loom/YouTube here)*
+
+## 24. Sample Results
+An example of the extracted classification payload:
+```json
+{
+  "primary_category": "Apparel & Accessories > Clothing > Shirts & Tops",
+  "confidence_score": 95,
+  "attributes": {
+    "Material": "Cotton",
+    "Color": "Blue"
+  },
+  "alternative_categories": [
+    "Apparel & Accessories > Clothing > Activewear"
+  ]
+}
+```
+
+## 25. Limitations
+- External LLM API rate limits (mitigated by text-only fallbacks).
+- Initial local embeddings load time on worker startup (handled by lazy loading).
+
+## 26. Production Improvements
+- Migrate local `SentenceTransformers` to a dedicated Vector DB (Pinecone/Milvus).
+- Implement WebSockets for real-time progress bars instead of AJAX polling.
+- Deploy across AWS ECS (Fargate).
+
+## 27. Testing
+Run the test suite to verify models and APIs:
+```bash
+python manage.py test
+```
+
+## 28. Assignment Question Answers
+Detailed answers to the 14 theoretical questions requested in the assignment can be found in [`CANDIDATE_ANSWERS.md`](./CANDIDATE_ANSWERS.md).
