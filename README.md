@@ -92,7 +92,7 @@ Products are flagged (`requires_manual_review = True`) if the confidence score i
 
 ## 19. Demo Video & Screenshots
 
-- **Demo Video:** [Watch on YouTube](https://youtu.be/KtGn0PX8GsU)
+[![Watch the Demo Video](https://img.youtube.com/vi/KtGn0PX8GsU/maxresdefault.jpg)](https://youtu.be/KtGn0PX8GsU)
 
 - **Login Page**  
   ![Login Page](screenshots/login%20page.png)
