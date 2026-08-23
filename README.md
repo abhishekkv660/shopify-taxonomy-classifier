@@ -56,11 +56,38 @@ DB_PASSWORD=your_password
 
 ## 10. Installation & Startup
 
+### Method 1: Using Docker (Recommended)
 To launch the entire stack (Database, Redis, Celery Worker, and Django API) in one click, run:
 ```bash
 docker-compose up --build
 ```
 *Note: On first startup, the system will automatically run migrations, auto-provision the default `admin` account, and seed the entire Shopify taxonomy into the database. This takes ~2 minutes.*
+
+### Method 2: Running Locally (Dockerless)
+If you prefer to run the application natively on your host machine:
+
+1. **Start Services:** Ensure you have MariaDB and Redis running locally. Update your `.env` file with the correct ports/passwords and set `IS_DOCKER=False`.
+2. **Install Dependencies:**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate      # On Windows
+   # source venv/bin/activate # On Mac/Linux
+   pip install -r requirements.txt
+   ```
+3. **Initialize Database:**
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py import_shopify_taxonomy
+   ```
+4. **Start the Celery Worker** (in terminal 1):
+   ```bash
+   celery -A config worker -l info --pool=threads --concurrency=20
+   ```
+5. **Start the Django Server** (in terminal 2):
+   ```bash
+   python manage.py runserver
+   ```
 
 ## 11. Product Import
 Once the UI is running, navigate to `http://localhost:8000/dashboard/`. Upload the provided `.xlsx` product catalogue directly via the Dashboard UI ("Upload Excel" button).
