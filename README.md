@@ -18,48 +18,39 @@ An intelligent, massively scalable background processor that ingests raw product
 4. **Classification Layer:** Groq processes the final prompt.
 5. **Presentation Layer:** The REST API serves paginated results to the Vanilla JS dashboard.
 
+## Screenshots & Demo Video
+
+*(Add your screenshots here)*
+- **Dashboard View:** `![Dashboard](link_to_image)`
+- **Manual Review Modal:** `![Review Modal](link_to_image)`
+
+*(Add a link to a short 2-minute Loom or YouTube video demonstrating the application running here)*
+
 ## Setup Instructions
 
-### 1. Prerequisites
-- Python 3.10+
-- Conda (recommended) or virtualenv
-- Redis (for Celery message brokering)
+### Option A: Docker (Recommended)
+You can spin up the entire architecture (Django, Celery, Redis, MariaDB) with a single command. The database will automatically migrate and seed the taxonomy data.
 
-### 2. Environment Variables
-Create a `.env` file in the root directory:
+1. Create a `.env` file in the root directory:
 ```env
 GROQ_API_KEY=your_groq_key
 GEMINI_API_KEY=your_gemini_key
 ```
 
-### 3. Installation
+2. Run Docker Compose:
 ```bash
-conda create -n shopify python=3.10
-conda activate shopify
-pip install -r requirements.txt
+docker-compose up --build
 ```
+Navigate to `http://localhost:8000/dashboard/` to view the UI.
 
-### 4. Database Setup
+### Option B: Local Bare-Metal Setup
+1. Create your `.env` (make sure to include local DB credentials).
+2. Install dependencies: `pip install -r requirements.txt`
+3. Migrate and seed data:
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 python manage.py import_shopify_taxonomy data/taxonomy_data
 ```
-
-### 5. Running the Application
-You will need three separate terminal windows:
-
-**Terminal 1 (Redis Server):**
-*(Ensure Redis is running on port 6379)*
-
-**Terminal 2 (Celery Worker):**
-```bash
-celery -A core worker -l info --pool=threads
-```
-
-**Terminal 3 (Django Server):**
-```bash
-python manage.py runserver
-```
-
-Navigate to `http://127.0.0.1:8000/dashboard/` to view the UI.
+4. Run Redis on port 6379.
+5. Run the Celery Worker: `celery -A core worker -l info --pool=threads`
+6. Run the Django Server: `python manage.py runserver`
