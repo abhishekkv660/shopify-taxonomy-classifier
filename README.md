@@ -63,6 +63,7 @@ conda create -n shopify python=3.10
 conda activate shopify
 pip install -r requirements.txt
 ```
+*(Note: A convenient `run_local.bat` script is included for Windows users to instantly launch all required servers after completing steps 11 and 12).*
 
 ## 11. Database Migration (Bare-Metal)
 ```bash
@@ -78,14 +79,15 @@ python manage.py import_shopify_taxonomy data/taxonomy_data
 *(Note: Ensure the application and workers from Steps 14 and 15 are running before doing this!)*
 Once the UI is running, upload the provided `.xlsx` product catalogue directly via the Dashboard UI ("Upload Excel" button).
 
-## 14. Running the Application (Bare-Metal)
+## 14. Running the Application
+If not using Docker or the `run_local.bat` script, run the Django server manually:
 ```bash
 python manage.py runserver
 ```
 Navigate to `http://localhost:8000/dashboard/`
 
-## 15. Running Background Workers (Bare-Metal)
-Ensure Redis is running (port 6379), then start Celery:
+## 15. Running Background Workers
+If not using Docker or the `run_local.bat` script, ensure Redis is running (port 6379), then manually start Celery:
 ```bash
 celery -A core worker -l info --pool=threads
 ```
