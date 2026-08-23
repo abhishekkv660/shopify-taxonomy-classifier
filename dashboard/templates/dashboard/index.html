@@ -32,23 +32,23 @@
     <div class="stats-container">
         <div class="stat-card">
             <h3>Total Catalog</h3>
-            <div class="value">{{ total_products }}</div>
+            <div class="value" id="statTotal">{{ total_products }}</div>
         </div>
         <div class="stat-card">
             <h3>AI Classified</h3>
-            <div class="value">{{ classified_products }}</div>
+            <div class="value" id="statClassified">{{ classified_products }}</div>
         </div>
         <div class="stat-card">
             <h3>Pending</h3>
-            <div class="value">{{ pending_products }}</div>
+            <div class="value" id="statPending">{{ pending_products }}</div>
         </div>
         <div class="stat-card">
             <h3>Needs Review</h3>
-            <div class="value">{{ needs_review }}</div>
+            <div class="value" id="statReview">{{ needs_review }}</div>
         </div>
         <div class="stat-card">
             <h3>Avg Confidence</h3>
-            <div class="value">{{ avg_confidence }}</div>
+            <div class="value" id="statAvgConf">{{ avg_confidence }}</div>
         </div>
     </div>
 
@@ -149,7 +149,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{% static 'dashboard/js/app.js' %}?v=2"></script>
+    <script src="{% static 'dashboard/js/app.js' %}?v=3"></script>
     <script>
         initDashboardData({{ all_categories|safe }});
     </script>

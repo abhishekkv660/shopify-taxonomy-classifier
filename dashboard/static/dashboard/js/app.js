@@ -88,6 +88,24 @@ function pollJobStatus() {
     fetch(`/api/job-status/?t=${new Date().getTime()}`, { cache: 'no-store' })
     .then(r => r.json())
     .then(data => {
+        // Update global stats
+        if (data.stats) {
+            const elTotal = document.getElementById('statTotal');
+            if (elTotal) elTotal.innerText = data.stats.total;
+            
+            const elClass = document.getElementById('statClassified');
+            if (elClass) elClass.innerText = data.stats.classified;
+            
+            const elPending = document.getElementById('statPending');
+            if (elPending) elPending.innerText = data.stats.pending;
+            
+            const elReview = document.getElementById('statReview');
+            if (elReview) elReview.innerText = data.stats.review;
+            
+            const elAvg = document.getElementById('statAvgConf');
+            if (elAvg) elAvg.innerText = data.stats.avg_conf;
+        }
+
         if (!data.id) return;
         
         document.getElementById('jobTitle').innerText = `Active Batch Job #${data.id}`;

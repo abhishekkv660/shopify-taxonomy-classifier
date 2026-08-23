@@ -42,14 +42,34 @@ class UploadProductsAPIView(APIView):
         threading.Thread(target=run_import).start()
         return Response({"status": "Import started in the background. Please wait a moment."})
 
+from django.db.models import Avg
+
 class JobStatusView(APIView):
-    """Returns the status of the most recent batch processing job."""
+    """Returns the status of the most recent batch processing job and global stats."""
     def get(self, request, *args, **kwargs):
         latest_job = ProcessingJob.objects.order_by('-start_time').first()
-        if not latest_job:
-            return Response({"active": False})
         
-        return Response({
+        total_products = Product.objects.count()
+        classified_products = Classification.objects.count()
+        needs_review = Classification.objects.filter(requires_manual_review=True).count()
+        failed_products = Classification.objects.filter(status='FAILED').count()
+        avg_conf = Classification.objects.aggregate(Avg('confidence'))['confidence__avg'] or 0
+        
+        response_data = {
+            "stats": {
+                "total": total_products,
+                "classified": classified_products,
+                "pending": total_products - classified_products,
+                "review": needs_review,
+                "avg_conf": round(avg_conf, 2)
+            }
+        }
+        
+        if not latest_job:
+            response_data["active"] = False
+            return Response(response_data)
+        
+        response_data.update({
             "active": latest_job.status in ['PENDING', 'PROCESSING'],
             "id": latest_job.id,
             "status": latest_job.status,
@@ -57,6 +77,7 @@ class JobStatusView(APIView):
             "failed": latest_job.failed,
             "total_products": latest_job.total_products
         })
+        return Response(response_data)
 
 from dashboard.models import ProcessingJob
 from products.models import Product
