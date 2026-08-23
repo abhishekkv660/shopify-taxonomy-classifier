@@ -41,7 +41,10 @@ The application follows a decoupled 3-tier architecture:
 Docker will automatically initialize a MariaDB instance (`taxonomy_db`) using the default credentials configured in your `.env` file.
 
 ## 9. Environment Variables
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (or simply copy `.env.example`). 
+
+**Note:** The Groq API key is 100% free. You can generate one instantly at [console.groq.com](https://console.groq.com/keys) without a credit card.
+
 ```env
 GROQ_API_KEY=your_groq_key
 DB_NAME=taxonomy_db
