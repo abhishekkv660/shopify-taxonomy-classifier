@@ -28,7 +28,6 @@ services:
     environment:
       - IS_DOCKER=True
       - GROQ_API_KEY=${GROQ_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - db
       - redis
@@ -41,7 +40,6 @@ services:
     environment:
       - IS_DOCKER=True
       - GROQ_API_KEY=${GROQ_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - db
       - redis
