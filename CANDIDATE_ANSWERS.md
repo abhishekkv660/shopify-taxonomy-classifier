@@ -1,7 +1,11 @@
 # Candidate Answers
 
 ### 1. What approach would you use to automatically identify the Shopify category, attributes, and attribute values? Explain your approach and why you selected it.
-My approach combines the speed of local semantic search with the reasoning power of Large Language Models. To avoid overwhelming the LLM with all 5,000+ taxonomy categories, I first use a local `SentenceTransformer` to retrieve the top 10 most semantically relevant candidate categories for a given product. I then pass these candidates, along with the product's metadata (and image context via Google Gemini Vision), into a highly optimized LLM prompt (via Groq/LLaMA3). The LLM is forced to return strict JSON containing the exact primary category and extracted attributes. This hybrid approach is selected because it is highly accurate, context-aware, and extremely fast.
+My approach combines the speed of local semantic search with the reasoning power of Large Language Models, very similar to a **RAG (Retrieval-Augmented Generation)** architecture. 
+
+Initially, I attempted a traditional ML approach using TF-IDF vectorization and cosine similarity. However, this effort failed because merchant product descriptions often use completely different vocabulary than the strict Shopify taxonomy, leading to extremely poor matching accuracy. 
+
+To solve this, I pivoted to leveraging modern Agentic AI workflows. I first use a local `SentenceTransformer` to retrieve the top 10 most semantically relevant candidate categories for a product. I then pass these candidates, along with the product's metadata (and image context via Google Gemini Vision), into a highly optimized LLM prompt (via Groq/LLaMA3). The LLM is forced to return strict JSON containing the exact primary category and extracted attributes. This approach allows me to benefit from the advanced reasoning of LLMs without the immense time and effort required to gather labeled data and train a traditional ML model from scratch.
 
 ### 2. How would you handle a product that has a title but no description and no image?
 The system gracefully degrades. The local semantic search (`SentenceTransformer`) generates embeddings based purely on the Title. The LLM is also instructed to infer as much context as possible from the Title alone. While confidence scores may naturally be lower without descriptions or images, the system will still output the most logical primary category and flag it for manual review if the confidence drops below the acceptable threshold (70%).
@@ -11,6 +15,8 @@ I integrate Google's Gemini Pro Vision model. When a product has an image URL, t
 
 ### 4. How would you design the application to process 10,000+ products efficiently? Explain your approach for batch/background processing.
 I utilize **Celery** paired with **Redis** as a message broker. When a 10,000-product batch is uploaded, the Django web server immediately creates a `ProcessingJob` database record and queues the product IDs into Redis. A pool of asynchronous Celery worker threads then processes the products in the background. This entirely decouples the heavy ML inference from the web server, allowing the UI to remain highly responsive while processing happens iteratively behind the scenes.
+
+*(Note: While the core architecture is fully capable of processing 10,000+ products, due to my local system hardware limits and strict rate limits on free-tier LLM API keys, the live prototype demo is currently restricted to processing batches of 10 products at a time to prevent API bans. In a production environment with paid API tiers, this restriction is simply lifted in the config.)*
 
 ### 5. How would you store the Shopify taxonomy and its category hierarchy in the database?
 I store the taxonomy in a normalized relational structure using Django models (`TaxonomyCategory`). Each category is stored with its `shopify_id`, `name`, and `full_path`. To represent the hierarchy, I use a self-referential foreign key (`parent = models.ForeignKey('self')`), which allows the database to easily reconstruct trees, fetch subcategories, or query breadcrumbs.
