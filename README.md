@@ -98,6 +98,7 @@ celery -A core worker -l info --pool=threads
 3. LLM returns JSON containing the exact primary path, confidence, attributes, and alternatives.
 
 ## 17. Dashboard Usage
+**Default Credentials:** Username: `admin` | Password: `admin123`
 - View overall statistics (Total, Pending, Success, Failed, Manual Review).
 - Click "Upload Excel" to ingest new products.
 - Click "Process Pending" to trigger the Celery batch worker.
