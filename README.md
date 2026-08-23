@@ -47,6 +47,8 @@ Create a `.env` file in the root directory (or simply copy `.env.example`).
 
 ```env
 GROQ_API_KEY=your_groq_key
+SECRET_KEY=your_secret_key_here
+DEBUG=True
 DB_NAME=taxonomy_db
 DB_USER=taxonomy_user
 DB_PASSWORD=your_password
