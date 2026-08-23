@@ -20,6 +20,12 @@ while True:
 
 echo "MariaDB started"
 
+# If the command starts with celery, skip migrations to prevent race conditions
+if [ "$1" = "celery" ]; then
+    echo "Starting Celery worker (skipping migrations)..."
+    exec "$@"
+fi
+
 echo "Applying database migrations..."
 python manage.py migrate
 
