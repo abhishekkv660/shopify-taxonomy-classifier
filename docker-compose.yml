@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: taxonomy_root_password
+      MYSQL_DATABASE: taxonomy_db
+      MYSQL_USER: taxonomy_user
+      MYSQL_PASSWORD: taxonomy_password
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_DOCKER=True
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: .
+    command: celery -A core worker -l info --pool=threads
+    volumes:
+      - .:/app
+    environment:
+      - IS_DOCKER=True
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  mariadb_data:
