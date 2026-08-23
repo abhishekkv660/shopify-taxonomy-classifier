@@ -15,4 +15,3 @@ venv.bak/
 .env
 data/taxonomy_data
 data/taxonomy_embeddings.pkl
-data/shopify_taxonomy
