@@ -4,10 +4,10 @@ services:
   db:
     image: mariadb:10.11
     environment:
-      MYSQL_ROOT_PASSWORD: taxonomy_root_password
-      MYSQL_DATABASE: taxonomy_db
-      MYSQL_USER: taxonomy_user
-      MYSQL_PASSWORD: taxonomy_password
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
