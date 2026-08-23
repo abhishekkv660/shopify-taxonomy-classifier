@@ -62,6 +62,7 @@ The application follows a decoupled 3-tier architecture:
 **Assumptions & Risks:**
 - **Assumption:** Access to high-throughput LLM API keys (Groq/Gemini).
 - **Risk:** API rate limiting. *Mitigation: Implemented exponential backoff and text-only fallbacks.*
+- **Risk:** Retrieval Engine Scalability. *Mitigation: Currently using local SentenceTransformers in-memory. For production at extreme scale, this must be optimized by migrating to a dedicated Vector Database (e.g., Pinecone/Milvus) to prevent high memory overhead during cosine similarity searches.*
 
 **Total Estimated Effort: 32 Hours (4 Days)**
 - **Day 1 (8 hrs): Foundation & Database Setup**
