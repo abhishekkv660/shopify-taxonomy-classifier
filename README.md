@@ -75,7 +75,8 @@ python manage.py import_shopify_taxonomy data/taxonomy_data
 ```
 
 ## 13. Product Import
-Upload the provided `.xlsx` product catalogue directly via the Dashboard UI ("Upload Excel" button) or via the API.
+*(Note: Ensure the application and workers from Steps 14 and 15 are running before doing this!)*
+Once the UI is running, upload the provided `.xlsx` product catalogue directly via the Dashboard UI ("Upload Excel" button).
 
 ## 14. Running the Application (Bare-Metal)
 ```bash
