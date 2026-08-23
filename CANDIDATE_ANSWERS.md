@@ -57,19 +57,16 @@ The application follows a decoupled 3-tier architecture:
 - **Assumption:** Access to high-throughput LLM API keys (Groq/Gemini).
 - **Risk:** API rate limiting. *Mitigation: Implemented exponential backoff and text-only fallbacks.*
 
-**Total Estimated Effort: 40 Hours (5 Days)**
-- **Day 1 (8 hrs): Architecture & Database Setup**
+**Total Estimated Effort: 32 Hours (4 Days)**
+- **Day 1 (8 hrs): Foundation & Database Setup**
   - Django project scaffolding, MariaDB setup, and designing relational models.
   - Writing scripts to parse and normalize the Shopify taxonomy into the database.
 - **Day 2 (8 hrs): Core ML Logic**
   - Implementing local `SentenceTransformers` for candidate retrieval.
   - Integrating Groq/LLaMA3 for text classification and Gemini for Vision processing.
-- **Day 3 (8 hrs): Background Processing & Resilience**
+- **Day 3 (8 hrs): Scale, Background Processing & APIs**
   - Setting up Celery and Redis.
-  - Writing idempotent task loops, error handling, and exponential backoffs.
-- **Day 4 (8 hrs): API & Frontend Dashboard**
-  - Building REST APIs with DRF.
+  - Writing idempotent task loops, error handling, REST APIs, and exponential backoffs.
+- **Day 4 (8 hrs): Perfection, Dashboard & Delivery**
   - Developing the Vanilla JS dashboard, progress bars, and manual review modal.
-- **Day 5 (8 hrs): Containerization & Polish (What to do)**
-  - Dockerizing the application, Redis, Celery, and MariaDB into a `docker-compose.yml`.
-  - Final end-to-end testing, documentation (`README.md`), and UI polish.
+  - Containerization (Docker), end-to-end testing, documentation, and final UI polish.
