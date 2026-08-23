@@ -6,7 +6,7 @@ import time
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "gemini-3.7-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 class VisionAnalyzer:
     def __init__(self):
