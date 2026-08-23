@@ -16,12 +16,12 @@ The application follows a decoupled 3-tier architecture:
 - **Backend:** Python, Django, Django REST Framework
 - **Database:** MariaDB
 - **Background Processing:** Celery, Redis
-- **AI/ML:** `sentence-transformers` (Local), Groq (LLaMA3), Google Gemini Pro Vision
+- **AI/ML:** `sentence-transformers` (Local), Groq (LLaMA3 & Qwen Vision)
 - **Deployment:** Docker, Docker Compose
 
 ## 5. Features
 - **Semantic Candidate Retrieval:** Uses `SentenceTransformers` to instantly find the top 10 closest Shopify categories.
-- **LLM Classification & Multimodal Support:** Uses Groq (LLaMA3) for text analysis and Gemini for image analysis.
+- **LLM Classification & Multimodal Support:** Uses Groq for both text and image analysis (bypassing slow external APIs).
 - **Resumable Batch Processing:** Processes 10,000+ products continuously without timeouts.
 - **Graceful Fallbacks:** Falls back to text-only classification on image API rate limits (HTTP 429).
 - **Modern Dashboard UI:** For reviewing, editing, and approving AI classifications.
@@ -44,7 +44,6 @@ Docker will automatically initialize a MariaDB instance (`taxonomy_db`) using th
 Create a `.env` file in the root directory:
 ```env
 GROQ_API_KEY=your_groq_key
-GEMINI_API_KEY=your_gemini_key
 DB_NAME=taxonomy_db
 DB_USER=taxonomy_user
 DB_PASSWORD=your_password
