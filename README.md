@@ -90,7 +90,10 @@ Each product is wrapped in a `try-except` block. If an image is broken (404) or 
 ## 18. Manual Review
 Products are flagged (`requires_manual_review = True`) if the confidence score is < 70%, if the candidate path is invalid, or if processing fails. Reviewers can easily select from alternative categories in the UI.
 
-## 19. Screenshots
+## 19. Demo Video & Screenshots
+
+- **Demo Video:** [Watch on YouTube](https://youtu.be/KtGn0PX8GsU)
+
 - **Login Page**  
   ![Login Page](screenshots/login%20page.png)
 - **Main Dashboard**  
