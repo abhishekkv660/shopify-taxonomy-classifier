@@ -57,10 +57,17 @@ docker-compose up --build
 ```
 *(This automatically runs migrations and seeds the taxonomy. Skip to step 13).*
 
-**Option B: Bare-Metal**
+**Option B: Bare-Metal (Local Python)**
+1. Create and activate a virtual environment:
 ```bash
-conda create -n shopify python=3.10
-conda activate shopify
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+```
+2. Install the required dependencies:
+```bash
 pip install -r requirements.txt
 ```
 *(Note: A convenient `run_local.bat` script is included for Windows users to instantly launch all required servers after completing steps 11 and 12).*
