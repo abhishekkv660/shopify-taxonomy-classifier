@@ -29,10 +29,14 @@ fi
 echo "Applying database migrations..."
 python manage.py migrate
 
-echo "Seeding taxonomy data (this is idempotent)..."
-# In case the JSON files aren't physically present in the volume immediately or it's a first run
-if [ -d "data/taxonomy_data" ]; then
-    python manage.py import_shopify_taxonomy data/taxonomy_data || true
+echo "Checking if taxonomy is already seeded..."
+if ! python manage.py shell -c "from taxonomy.models import TaxonomyCategory; import sys; sys.exit(0 if TaxonomyCategory.objects.exists() else 1)"; then
+    echo "Seeding taxonomy data for the first time..."
+    if [ -d "data/taxonomy_data" ]; then
+        python manage.py import_shopify_taxonomy data/taxonomy_data || true
+    fi
+else
+    echo "Taxonomy already exists! Skipping slow import."
 fi
 
 echo "Starting server..."
