@@ -91,9 +91,16 @@ Each product is wrapped in a `try-except` block. If an image is broken (404) or 
 Products are flagged (`requires_manual_review = True`) if the confidence score is < 70%, if the candidate path is invalid, or if processing fails. Reviewers can easily select from alternative categories in the UI.
 
 ## 19. Screenshots
-- **Dashboard View:** *(Add screenshot here)*
-- **Manual Review Modal:** *(Add screenshot here)*
-- **Demo Video:** *(Add link to Loom/YouTube here)*
+- **Login Page**  
+  ![Login Page](screenshots/login%20page.png)
+- **Main Dashboard**  
+  ![Dashboard](screenshots/dashboard.png)
+- **Dashboard - Running Batch Job**  
+  ![Dashboard 3](screenshots/dash%20board%203.png)
+- **Dashboard - Completed Classification**  
+  ![Dashboard 2](screenshots/dashboard%202.png)
+- **Product Inspection & Manual Review**  
+  ![Inspect Modal](screenshots/inspect.png)
 
 ## 20. Sample Results
 An example of the extracted classification payload:
