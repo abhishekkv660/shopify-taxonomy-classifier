@@ -24,7 +24,7 @@ load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-local-assessment")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "dummy_key_to_prevent_startup_crash")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
