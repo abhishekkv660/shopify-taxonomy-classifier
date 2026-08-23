@@ -89,7 +89,7 @@ Navigate to `http://localhost:8000/dashboard/`
 ## 15. Running Background Workers
 If not using Docker or the `run_local.bat` script, ensure Redis is running (port 6379), then manually start Celery:
 ```bash
-celery -A core worker -l info --pool=threads
+celery -A config worker -l info --pool=threads
 ```
 
 ## 16. Classification Flow

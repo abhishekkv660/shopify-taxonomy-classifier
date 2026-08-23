@@ -35,7 +35,7 @@ services:
 
   celery:
     build: .
-    command: celery -A core worker -l info --pool=threads
+    command: celery -A config worker -l info --pool=threads
     volumes:
       - .:/app
     environment:
