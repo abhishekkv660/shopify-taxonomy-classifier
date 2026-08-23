@@ -94,7 +94,7 @@ class Command(BaseCommand):
             )
         )
 
-        # Auto-provision default admin user for all reviewers
+        # Create default admin user
         from django.contrib.auth import get_user_model
         User = get_user_model()
         if not User.objects.filter(username="admin").exists():

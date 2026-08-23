@@ -6,7 +6,6 @@ import time
 
 logger = logging.getLogger(__name__)
 
-# We use gemini-3.7-flash which is the latest supported version
 MODEL_NAME = "gemini-3.7-flash"
 
 class VisionAnalyzer:
@@ -17,7 +16,6 @@ class VisionAnalyzer:
         """
         Downloads an image and asks Gemini to describe it via raw HTTP request.
         """
-        # Prevent hitting Gemini free tier rate limits (HTTP 429)
         time.sleep(2)
 
         if not self.api_key:
@@ -28,14 +26,12 @@ class VisionAnalyzer:
             return None
 
         try:
-            # 1. Download image
             img_response = requests.get(image_url, timeout=5)
             img_response.raise_for_status()
             
             mime_type = img_response.headers.get('Content-Type', 'image/jpeg')
             base64_img = base64.b64encode(img_response.content).decode('utf-8')
             
-            # 2. Call Gemini API directly (bypassing broken google.generativeai SDK)
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent?key={self.api_key}"
             
             prompt = (
@@ -64,7 +60,6 @@ class VisionAnalyzer:
             api_response.raise_for_status()
             
             data = api_response.json()
-            # Extract text from response
             text = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
             
             return text.strip() if text else None
